@@ -2,14 +2,11 @@ package com.blazingapps.asus.ohm;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -20,6 +17,8 @@ import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
@@ -36,6 +35,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import okhttp3.MediaType;
@@ -98,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
                         MainActivity.this.style = style;
                         enableLocationComponent(style);
                         new SearchAsyncTask().execute(searchURL);
-
                         // Map is set up and the style has loaded. Now you can add data or make other map adjustments
                     }
                 });
@@ -106,10 +107,10 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
         });
     }
 
-    public void markPumps(String name, double wait, double rate, double latitude, double longitude){
+    public void markPumps(String name, double slow_wait, double rate, double latitude, double longitude){
         mapboxmap.addMarker(new MarkerOptions()
                 .title(name)
-                .snippet(String.valueOf(rate)+"\n"+String.valueOf(wait))
+                .snippet(String.valueOf(rate)+"\n"+String.valueOf(slow_wait))
                 .position(new LatLng(latitude, longitude)));
     }
 
@@ -195,8 +196,17 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            @SuppressLint("MissingPermission") CameraPosition newCameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(locationComponent.getLastKnownLocation().getLatitude(),
+                            locationComponent.getLastKnownLocation().getLongitude()))
+                    .zoom(12)
+                    .build();
+
+            mapboxmap.animateCamera(CameraUpdateFactory
+                    .newCameraPosition(newCameraPosition), 6000);
+
             if (s != null){
-                //Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
                 try {
                     //TODO: SORT HERE
                     startNavFab.setEnabled(true);
@@ -204,13 +214,24 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
                     JSONArray pumps = nearByPumpsJSON.getJSONArray("pumps");
                     nearbyPumpList = pumps;
                      for (int i=0; i<pumps.length(); ++i){
+                         @SuppressLint("MissingPermission") double distance = calculateDistanceBetweenPoints(
+                                 pumps.getJSONObject(i).getDouble("latitude"),
+                                 pumps.getJSONObject(i).getDouble("longitude"),
+                                 locationComponent.getLastKnownLocation().getLatitude(),
+                                 locationComponent.getLastKnownLocation().getLongitude(),
+                                 "K");
+                         nearbyPumpList.getJSONObject(i).put("distance",distance);
+
                         markPumps(
                                 pumps.getJSONObject(i).getString("name"),
-                                pumps.getJSONObject(i).getDouble("wait"),
-                                pumps.getJSONObject(i).getDouble("rate"),
+                                pumps.getJSONObject(i).getDouble("slow_wait"),
+                                pumps.getJSONObject(i).getDouble("slow_rate"),
                                 pumps.getJSONObject(i).getDouble("latitude"),
                                 pumps.getJSONObject(i).getDouble("longitude"));
                     }
+
+                    //nearbyPumpList = sort(nearbyPumpList,"distance",true);
+                     Toast.makeText(getApplicationContext(),nearbyPumpList.toString(),Toast.LENGTH_LONG).show();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -291,12 +312,69 @@ public class MainActivity extends AppCompatActivity implements PermissionsListen
 //    onDestroy();
     public void gotoallpumps(View v){
         //startActivity(new Intent(getApplicationContext(),ListPumps.class));
-        Intent intent = new Intent(getApplicationContext(),ListPumps.class);
+        Intent intent = new Intent(getApplicationContext(), ListPumpsActivity.class);
         Bundle bundle = new Bundle();
         bundle.putString("nearby",nearByPumpsJSON.toString());
 
         intent.putExtras(bundle);
         startActivity(intent);
 
+    }
+
+    public double calculateDistanceBetweenPoints(
+            double lat1,
+            double lon1,
+            double lat2,
+            double lon2,
+            String unit) {
+        if ((lat1 == lat2) && (lon1 == lon2)) {
+            return 0;
+        }
+        else {
+            double theta = lon1 - lon2;
+            double dist = Math.sin(Math.toRadians(lat1)) * Math.sin(Math.toRadians(lat2)) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.cos(Math.toRadians(theta));
+            dist = Math.acos(dist);
+            dist = Math.toDegrees(dist);
+            dist = dist * 60 * 1.1515;
+            if (unit == "K") {
+                dist = dist * 1.609344;
+            } else if (unit == "N") {
+                dist = dist * 0.8684;
+            }
+            return (dist);
+        }
+    }
+
+    JSONArray sort(JSONArray jsonArr, String sortBy, boolean sortOrder) throws JSONException {
+        JSONArray sortedJsonArray = new JSONArray();
+
+        List<JSONObject> jsonValues = new ArrayList<JSONObject>();
+        for (int i = 0; i < jsonArr.length(); i++) {
+            jsonValues.add(jsonArr.getJSONObject(i));
+        }
+        final String KEY_NAME = sortBy;
+        final Boolean SORT_ORDER = sortOrder;
+        Collections.sort( jsonValues, new Comparator<JSONObject>() {
+
+            @Override
+            public int compare(JSONObject a, JSONObject b) {
+                String  valA = new String();
+                String  valB = new String();
+
+                try {
+                    valA = String.valueOf(a.get(KEY_NAME));
+                    valB = String.valueOf(b.get(KEY_NAME));
+                }
+                catch (JSONException e) {
+                    //exception
+                }
+                if (SORT_ORDER) {
+                    return valA.compareTo(valB);
+                } else {
+                    return -valA.compareTo(valB);
+                }
+            }
+        });
+        return sortedJsonArray;
     }
 }

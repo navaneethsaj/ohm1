@@ -11,11 +11,12 @@ import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListPumps extends AppCompatActivity {
+public class ListPumpsActivity extends AppCompatActivity {
     public RecyclerView recyclerView;
     private List<Pump_List> pump_lists = new ArrayList<>();
     private PumpAdapter pumpAdapter;
@@ -26,25 +27,19 @@ public class ListPumps extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_pumps);
         recyclerView = findViewById(R.id.pump_recycle);
-        pumpAdapter = new PumpAdapter(pump_lists);
+        Bundle bundle = getIntent().getExtras();
+        data = bundle.getString("nearby");
+        try {
+            JSONObject listpumps = new JSONObject(data);
+            pumpAdapter = new PumpAdapter(listpumps.getJSONArray("pumps"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(pumpAdapter);
-        //pump_lists.add(new Pump_List("hi","1","s","s","s","s"));
-        Bundle bundle = getIntent().getExtras();
-        data = bundle.getString("nearby");
-        //Toast.makeText(getBaseContext(),data.toString(),Toast.LENGTH_SHORT).show();
-
-        try{
-            JSONArray jsonArray = new JSONArray(data);
-            for (int i=0;i<jsonArray.length();i++){
-                
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        //System.out.println(data.toString());
         pumpAdapter.notifyDataSetChanged();
 
 
