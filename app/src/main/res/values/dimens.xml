@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="fab_margin">6dp</dimen>
+    <dimen name="fab_height">64dp</dimen>
+    <dimen name="fab_width">64dp</dimen>
+</resources>

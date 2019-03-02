@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "551519207896",
+    "firebase_url": "https://ohm-sih-2019.firebaseio.com",
+    "project_id": "ohm-sih-2019",
+    "storage_bucket": "ohm-sih-2019.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:551519207896:android:dd7afa6cc229c0cf",
+        "android_client_info": {
+          "package_name": "com.blazingapps.asus.ohm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "551519207896-rdijnec0aktse6f90asmgc4r7vfmq2db.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.blazingapps.asus.ohm",
+            "certificate_hash": "b7f2dcf8046442d7d287a1f97eaadea8270835e4"
+          }
+        },
+        {
+          "client_id": "551519207896-8u77poq1eoudm1uh06fpm2nolcoq8i9q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxoCrDB1gPDApxmAutIZAWYC-5LK8dZr0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "551519207896-8u77poq1eoudm1uh06fpm2nolcoq8i9q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

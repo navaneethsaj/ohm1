@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="8dp"
+        app:cardCornerRadius="10dp"
+        android:id="@+id/card_pump">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:id="@+id/pump_name"
+                android:text="Pump name"
+                android:layout_margin="10dp"
+                android:textSize="20dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:id="@+id/category"
+                android:textSize="20dp"
+                android:layout_margin="10dp"
+                android:text="Category"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:id="@+id/waiting"
+                android:textSize="20dp"
+                android:layout_margin="10dp"
+                android:text="Waiting time"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:id="@+id/rate"
+                android:textSize="20dp"
+                android:layout_margin="10dp"
+                android:text="Rate"/>
+        <Button
+            android:layout_width="match_parent"
+            android:background="@color/colorPrimary"
+            android:text="Travel"
+            android:textColor="#fff"
+            android:textSize="15dp"
+            android:layout_gravity="bottom"
+            android:layout_height="wrap_content"
+            android:id="@+id/goto_pump"/>
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>
